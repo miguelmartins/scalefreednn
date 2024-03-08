@@ -25,6 +25,33 @@ class SingularityStrengthRecalibration(tf.keras.layers.Layer):
         return x * excite[:, tf.newaxis, tf.newaxis, :]
 
 
+class SSRSpatial(tf.keras.layers.Layer):
+    def __init__(self, r, max_scale, **kwargs):
+        super(SSRSpatial, self).__init__(**kwargs)
+        self.alpha_layer = LocalSingularityStrength(max_scale=max_scale)
+        self.r = r
+
+    def build(self, input_shape):
+        num_channels = input_shape[-1]
+        self.gap = tf.keras.layers.GlobalAvgPool2D()
+        self.w1 = tf.keras.layers.Dense(num_channels // self.r,
+                                        activation='relu')
+        self.w2 = tf.keras.layers.Dense(num_channels,
+                                        activation='sigmoid')
+        self.beta = self.add_weight(name='beta',
+                                    shape=(1),
+                                    initializer=tf.keras.initializers.Zeros(),
+                                    dtype=tf.float32,
+                                    trainable=True)
+        super(SSRSpatial, self).build(input_shape)
+
+    def call(self, x):
+        alphas = self.alpha_layer(x)
+        squeeze = self.gap(alphas)
+        excite = self.w2(self.w1(squeeze))
+        return (x * excite[:, tf.newaxis, tf.newaxis, :]) + (self.beta * (tf.nn.sigmoid(alphas)))
+
+
 class SqueezeExcite(tf.keras.layers.Layer):
     def __init__(self, r, **kwargs):
         super(SqueezeExcite, self).__init__(**kwargs)
