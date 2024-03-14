@@ -2,17 +2,16 @@ import numpy as np
 import os
 import tensorflow as tf
 
-from data.preprocessing import get_segmentation_data
+from etl.preprocessing import get_segmentation_data
 from models.unet import get_unet
 from config.parser import ExperimentConfigParser
 from sklearn.model_selection import KFold
 
-CONFIG_FILE = '/config/files/ten_fold_config.yaml'
-LOG_DIR = '/path/to/logdir'
-DATA_PATH = '/path/to/Kvasir-SEG/'
+CONFIG_FILE = '/home/miguelmartins/Projects/FractalFCN/config/kvasir-seg_baseline.yaml'
+LOG_DIR = '/home/miguelmartins/Projects/FractalFCN/logs_scale_free/five-fold/kvasir/shuffle-with-seed'
+DATA_PATH = '/home/miguelmartins/Datasets/kvasir-seg/Kvasir-SEG/'
 
 NUM_FOLDS = 10
-
 
 def normalize_fn(x, y, minimum_value=0., maximum_value=255.):
     x = tf.cast(x, dtype=tf.float32)
