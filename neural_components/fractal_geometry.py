@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from neural_components.convolutional import SharedConv2D, FSpecialGaussianInitializer
-from neural_components.custom_ops import sample_min_max_scaling
+from neural_components.custom_ops import sample_min_max_scaling, standardized_general_cosine_similarity
 
 
 class OrdinaryLeastSquares(tf.keras.layers.Layer):
