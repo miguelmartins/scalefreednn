@@ -4,7 +4,7 @@ import tensorflow as tf
 
 
 from etl.preprocessing import get_segmentation_data
-from models.ssr_unet import get_ssr_unet
+from models.ssr_unet import get_ssr_unet, get_weighted_spatial_automatic_scales_ssr_unet
 from config.parser import ExperimentConfigParser
 from sklearn.model_selection import KFold
 
@@ -42,12 +42,12 @@ def main():
     for fold, (train_index, val_index) in enumerate(kf.split(dataset_np_x)):
         print(f"Fold {fold} starting...")
         fold_data = ExperimentConfigParser(
-            name=f'ssr-unet-{NUM_FOLDS}-folds-{fold}-kvasir-seg_pid{os.getpid()}',
+            name=f'weighted-cossim-ssr-unet-{NUM_FOLDS}-folds-{fold}-kvasir-seg_pid{os.getpid()}',
             config_path=CONFIG_FILE,
             log_dir=LOG_DIR)
-        model = get_ssr_unet(channels_per_level=fold_data.config.model.level_depth,
-                                                input_shape=fold_data.config.data.target_size + [3],
-                                                with_bn=False)
+        model = get_weighted_spatial_automatic_scales_ssr_unet(channels_per_level=fold_data.config.model.level_depth,
+                                                               input_shape=fold_data.config.data.target_size + [3],
+                                                               with_bn=False)
         model.compile(loss=fold_data.loss_object,
                       optimizer=fold_data.optimizer_obj,
                       metrics=fold_data.metrics)
