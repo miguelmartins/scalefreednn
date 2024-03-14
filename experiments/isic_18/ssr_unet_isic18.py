@@ -7,8 +7,9 @@ from models.ssr_unet import get_ssr_unet
 from config.parser import ExperimentConfigParser
 from sklearn.model_selection import KFold
 
-CONFIG_FILE = '/config/files/ten_fold_config.yaml'
-LOG_DIR = '/path/to/logdir'
+CONFIG_FILE = '/home/miguelmartins/Projects/FractalFCN/config/isic_baseline.yaml'
+LOG_DIR = '/home/miguelmartins/Projects/FractalFCN/logs_scale_free/five-fold/isic/shuffle-with-seed'
+DATA_PATH = '/home/miguelmartins/Datasets/kvasir-seg/Kvasir-SEG/'
 
 NUM_FOLDS = 10
 
@@ -28,8 +29,8 @@ def normalize_fn(x, y, minimum_value=0., maximum_value=255.):
 
 
 def main():
-    dataset_np_x = np.load('/path/to/X_tr_224x224.npy')
-    dataset_np_y = np.load('/path/to/Y_tr_224x224.npy')
+    dataset_np_x = np.load('/home/miguelmartins/Datasets/ISIC2018/np/X_tr_224x224.npy')
+    dataset_np_y = np.load('/home/miguelmartins/Datasets/ISIC2018/np/Y_tr_224x224.npy')
 
     kf = KFold(n_splits=NUM_FOLDS, shuffle=False)
     for fold, (train_index, val_index) in enumerate(kf.split(dataset_np_x)):
