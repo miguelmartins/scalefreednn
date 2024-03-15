@@ -8,7 +8,7 @@ from config.parser import ExperimentConfigParser
 from sklearn.model_selection import KFold
 
 CONFIG_FILE = '/home/miguelmartins/Projects/FractalFCN/config/isic_baseline.yaml'
-LOG_DIR = '/home/miguelmartins/Projects/FractalFCN/logs_scale_free/five-fold/isic/shuffle-with-seed'
+LOG_DIR = '/home/miguelmartins/Projects/FractalFCN/logs_scale_free/ten-fold/isic/'  # TODO: Change this
 DATA_PATH = '/home/miguelmartins/Datasets/kvasir-seg/Kvasir-SEG/'
 
 NUM_FOLDS = 10

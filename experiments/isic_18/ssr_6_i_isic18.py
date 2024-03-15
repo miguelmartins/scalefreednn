@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 
 
-from models.unet import get_unet
+from models.ssr_unet import get_ssr_unet, get_ssr_automatic_scales_unet
 from config.parser import ExperimentConfigParser
 from sklearn.model_selection import KFold
 
@@ -35,10 +35,10 @@ def main():
     for fold, (train_index, val_index) in enumerate(kf.split(dataset_np_x)):
         print(f"Fold {fold} starting...")
         fold_data = ExperimentConfigParser(
-            name=f'unet-{NUM_FOLDS}-folds-{fold}-isic18_pid{os.getpid()}',
+            name=f'ssr-automatic-scales-unet-{NUM_FOLDS}-folds-{fold}-isic18_pid{os.getpid()}',
             config_path=CONFIG_FILE,
             log_dir=LOG_DIR)
-        model = get_unet(channels_per_level=fold_data.config.model.level_depth,
+        model = get_ssr_automatic_scales_unet(channels_per_level=fold_data.config.model.level_depth,
                                                     input_shape=fold_data.config.data.target_size + [3],
                                                     with_bn=False)  # RGB
         model.compile(loss=fold_data.loss_object,
