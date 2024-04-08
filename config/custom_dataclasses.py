@@ -8,6 +8,7 @@ class ModelCheckpointConfig:
     save_best_only: bool
     save_weights_only: bool
     patience: int
+    mode: str
 
 
 @dataclass

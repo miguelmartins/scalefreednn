@@ -6,7 +6,7 @@ import tensorflow as tf
 
 from dataclasses import asdict
 from evaluation.metrics import get_baseline_segmentation_metrics
-from optimization.loss_functions import dice_loss, binary_weighted_loss
+from optimization.loss_functions import dice_loss, weighted_loss, dice_loss_multi
 from config.custom_dataclasses import ModelCheckpointConfig, ExperimentConfig, CallbacksConfig, DataConfig, \
     TrainingConfig, PlateauSchedulerConfig, ModelConfig
 
@@ -52,7 +52,11 @@ class ExperimentConfigParser:
         elif loss_ == 'weighted':
             loss_ce = tf.keras.losses.BinaryCrossentropy()
             loss_dice = dice_loss()
-            return binary_weighted_loss(0.5, loss_ce, loss_dice)
+            return weighted_loss(0.5, loss_ce, loss_dice)
+        elif loss_ == 'weighted_multi':
+            loss_ce = tf.keras.losses.CategoricalCrossentropy(self.config.data.n_classes)
+            loss_dice = dice_loss_multi()
+            return weighted_loss(0.5, loss_ce, loss_dice)
         else:
             raise ValueError(f"Invalid loss type. Choose from: {', '.join(['ce', 'dice', 'weighted'])}")
 
