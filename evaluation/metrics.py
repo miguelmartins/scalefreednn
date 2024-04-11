@@ -16,12 +16,13 @@ def dice_coefficient(y_true, y_pred, epsilon=1e-12):
     return (2. * intersection + epsilon) / (tf.reduce_sum(_y_true, axis=-1) + tf.reduce_sum(_y_pred, axis=-1) + epsilon)
 
 
+@tf.function
 def dice_coefficient_multi(y_true, y_pred, epsilon=1e-12):
     n_classes = y_true.shape[-1]
     dices = 0  # one can initize as 0 since tensors have __plus__ defined having scalars
     for class_ in range(n_classes):
         dices += dice_coefficient(y_true[..., class_], y_pred[..., class_], epsilon)
-    return tf.reduce_mean(dices, axis=-1)
+    return dices / n_classes
 
 
 def get_baseline_segmentation_metrics():
