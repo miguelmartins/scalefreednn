@@ -9,9 +9,7 @@ def specificity(y_true, y_pred):
 
 
 def dice_coefficient(y_true, y_pred, epsilon=1e-12):
-    print("Shape of input", y_true.shape)
-    print(y_true)
-    # adapted from: https://stackoverflow.com/questions/72195156/correct-implementation-of-dice-loss-in-tensorflow-keras
+    # corrected from: https://stackoverflow.com/questions/72195156/correct-implementation-of-dice-loss-in-tensorflow-keras
     _y_true = tf.keras.layers.Flatten()(y_true)
     _y_pred = tf.where(tf.keras.layers.Flatten()(y_pred) >= 0.5, 1., 0.)
     intersection = tf.reduce_sum(_y_pred * _y_true, axis=-1)
@@ -19,16 +17,11 @@ def dice_coefficient(y_true, y_pred, epsilon=1e-12):
 
 
 def dice_coefficient_multi(y_true, y_pred, epsilon=1e-12):
-    shape_ = y_true.shape
-    _y_true = tf.keras.layers.Reshape([shape_[1] * shape_[2], shape_[3]])(y_true)
-    _y_pred = tf.where(tf.keras.layers.Reshape([shape_[1] * shape_[2], shape_[3]])(y_pred) >= 0.5, 1., 0)
-    intersection = tf.reduce_sum(_y_pred * _y_true, axis=1)
-    return (2. * intersection + epsilon) / (
-                tf.reduce_sum(_y_true, axis=1) + tf.reduce_sum(_y_pred, axis=1) + epsilon)
-
-
-def avg_dice_coefficient_multi(y_true, y_pred, epsilon=1e-12):
-    return tf.reduce_mean(dice_coefficient_multi(y_true, y_pred, epsilon), axis=-1)
+    n_classes = y_true.shape[-1]
+    dices = 0  # one can initize as 0 since tensors have __plus__ defined having scalars
+    for class_ in range(n_classes):
+        dices += dice_coefficient(y_true[..., class_], y_pred[..., class_], epsilon)
+    return tf.reduce_mean(dices, axis=-1)
 
 
 def get_baseline_segmentation_metrics():
@@ -38,9 +31,9 @@ def get_baseline_segmentation_metrics():
     sens = tf.keras.metrics.Recall(name='sensitivity')
     spec = tf.keras.metrics.MeanMetricWrapper(specificity, name='specificity')
     dice_score = tf.keras.metrics.MeanMetricWrapper(fn=dice_coefficient, name='dice_score')
-    iou = tf.keras.metrics.BinaryIoU(num_classes=2, target_class_ids=[1])
+    iou = tf.keras.metrics.BinaryIoU(target_class_ids=[1])
     return [accuracy, auc, prec, sens, spec, dice_score, iou]
 
 
 def get_baseline_segmentation_metrics_multi():
-    return [avg_dice_coefficient_multi]
+    return [tf.keras.metrics.MeanMetricWrapper(fn=dice_coefficient_multi, name='mean_dice_score')]
